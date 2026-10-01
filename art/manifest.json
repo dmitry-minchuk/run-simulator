@@ -1,0 +1,49 @@
+{
+  "style": "art/style.md",
+  "reference": "art/raw/footballer_run_01_v1.png",
+  "heroes": {
+    "footballer": {
+      "purpose": "hero boy superhero footballer, side view facing right, anchor bottom-center at feet, game height 120 logical px",
+      "height": 120,
+      "strips": {
+        "run": "footballer_run",
+        "jump": "footballer_jump",
+        "idle": "footballer_idle",
+        "hit_flytrap": "footballer_hit_flytrap",
+        "hit_pitcher": "footballer_hit_pitcher",
+        "hit_rose": "footballer_hit_rose",
+        "hit_stump": "footballer_hit_stump",
+        "hit_cactus": "footballer_hit_cactus",
+        "hit_rock": "footballer_hit_rock"
+      }
+    },
+    "princess": {
+      "purpose": "hero girl superhero princess, side view facing right, anchor bottom-center at feet, game height 120 logical px",
+      "height": 120,
+      "strips": {
+        "run": "princess_run",
+        "jump": "princess_jump",
+        "idle": "princess_idle",
+        "hit_flytrap": "princess_hit_flytrap",
+        "hit_pitcher": "princess_hit_pitcher",
+        "hit_rose": "princess_hit_rose",
+        "hit_stump": "princess_hit_stump",
+        "hit_cactus": "princess_hit_cactus",
+        "hit_rock": "princess_hit_rock"
+      }
+    }
+  },
+  "obstacles": {
+    "flytrap": {"purpose": "venus flytrap, idle loop and crash reaction, anchor bottom-left of hitbox", "height": 132, "idle": "flytrap_idle", "react": "flytrap_react"},
+    "pitcher": {"purpose": "pitcher plant, idle loop and crash reaction", "height": 136, "idle": "pitcher_idle", "react": "pitcher_react"},
+    "rose": {"purpose": "rose monster, idle loop and crash reaction", "height": 124, "idle": "rose_idle", "react": "rose_react"},
+    "stump": {"purpose": "tree stump, idle loop and crash reaction", "height": 96, "idle": "stump_idle", "react": "stump_react"},
+    "cactus": {"purpose": "cactus, idle loop and crash reaction", "height": 128, "idle": "cactus_idle", "react": "cactus_react"},
+    "rock": {"purpose": "big mossy boulder with crystals, idle loop and crash reaction", "height": 110, "idle": "rock_idle", "react": "rock_react"}
+  },
+  "background": [
+    {"id": "bg_sky", "name": "sky", "parallax": 0.04, "file": "sky.png", "height": 540, "keyed": false, "purpose": "far sky, parallax 0.04, seamless"},
+    {"id": "bg_hills", "name": "hills", "parallax": 0.3, "file": "hills.png", "width": 1920, "keyed": true, "purpose": "hills with trees, parallax 0.3, seamless"},
+    {"id": "bg_ground", "name": "ground", "parallax": 1.0, "file": "ground.png", "width": 1920, "below": 110, "keyed": true, "purpose": "ground strip, scrolls with world, seamless"}
+  ]
+}

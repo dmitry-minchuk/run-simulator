@@ -1,0 +1,18 @@
+{
+  "scale": 2,
+  "sky": {
+    "file": "sky.png",
+    "parallax": 0.04,
+    "overhang": 0.0
+  },
+  "hills": {
+    "file": "hills.png",
+    "parallax": 0.3,
+    "overhang": 77.0
+  },
+  "ground": {
+    "file": "ground.png",
+    "parallax": 1.0,
+    "overhang": 125.5
+  }
+}

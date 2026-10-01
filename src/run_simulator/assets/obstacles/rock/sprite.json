@@ -1,0 +1,29 @@
+{
+  "canvas": [
+    140.5,
+    121.0
+  ],
+  "anchor": [
+    11.5,
+    117.0
+  ],
+  "scale": 2,
+  "frames": {
+    "loop": [
+      "loop_00.png",
+      "loop_01.png",
+      "loop_02.png",
+      "loop_03.png"
+    ],
+    "react": [
+      "react_00.png",
+      "react_01.png",
+      "react_02.png",
+      "react_03.png"
+    ]
+  },
+  "size": [
+    117.5,
+    110.0
+  ]
+}

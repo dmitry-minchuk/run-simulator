@@ -1,0 +1,72 @@
+{
+  "canvas": [
+    159.5,
+    147.5
+  ],
+  "anchor": [
+    79.75,
+    143.5
+  ],
+  "scale": 2,
+  "frames": {
+    "run": [
+      "run_00.png",
+      "run_01.png",
+      "run_02.png",
+      "run_03.png",
+      "run_04.png",
+      "run_05.png"
+    ],
+    "idle": [
+      "idle_00.png",
+      "idle_01.png",
+      "idle_02.png",
+      "idle_03.png"
+    ],
+    "hit_flytrap": [
+      "hit_flytrap_00.png",
+      "hit_flytrap_01.png",
+      "hit_flytrap_02.png",
+      "hit_flytrap_03.png"
+    ],
+    "hit_pitcher": [
+      "hit_pitcher_00.png",
+      "hit_pitcher_01.png",
+      "hit_pitcher_02.png",
+      "hit_pitcher_03.png"
+    ],
+    "hit_rose": [
+      "hit_rose_00.png",
+      "hit_rose_01.png",
+      "hit_rose_02.png",
+      "hit_rose_03.png"
+    ],
+    "hit_stump": [
+      "hit_stump_00.png",
+      "hit_stump_01.png",
+      "hit_stump_02.png",
+      "hit_stump_03.png"
+    ],
+    "hit_cactus": [
+      "hit_cactus_00.png",
+      "hit_cactus_01.png",
+      "hit_cactus_02.png",
+      "hit_cactus_03.png"
+    ],
+    "hit_rock": [
+      "hit_rock_00.png",
+      "hit_rock_01.png",
+      "hit_rock_02.png",
+      "hit_rock_03.png"
+    ],
+    "land": [
+      "land_00.png"
+    ],
+    "air": [
+      "air_00.png",
+      "air_01.png",
+      "air_02.png",
+      "air_03.png"
+    ]
+  }
+}
