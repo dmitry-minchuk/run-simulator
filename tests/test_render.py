@@ -83,6 +83,32 @@ def test_hero_is_drawn_at_its_altitude(gpu: video.Renderer) -> None:
     assert min(airborne) == pytest.approx(min(grounded) - 150, abs=3)
 
 
+@pytest.mark.parametrize("seconds", [0.0, 110.0])
+def test_jump_spreads_air_frames_evenly_over_the_jump_at_any_speed(
+    gpu: video.Renderer, seconds: float
+) -> None:
+    world = running_world()
+    for _ in range(round(seconds * 120)):
+        world.update(1 / 120)
+    renderer = Renderer(gpu)
+    sheet = renderer._heroes[Hero.FOOTBALLER]
+    air = sheet.frames["air"]
+    renderer.update(world, 1 / 120)
+
+    world.jump()
+    shown: list[int] = []
+    while not world.player.on_ground:
+        world.update(1 / 120)
+        renderer.update(world, 1 / 120)
+        texture = renderer._hero_texture(world, sheet)
+        if texture in air:
+            shown.append(air.index(texture))
+
+    assert shown == sorted(shown)
+    for index in range(len(air)):
+        assert shown.count(index) / len(shown) == pytest.approx(1 / len(air), abs=0.05)
+
+
 def test_crash_plays_the_reaction_of_the_obstacle_that_was_hit(gpu: video.Renderer) -> None:
     world = running_world()
     rock = Obstacle(x=world.config.player_x + 30, width=110, height=84, kind=Kind.ROCK, seed=0.0)

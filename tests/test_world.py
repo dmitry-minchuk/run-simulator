@@ -38,7 +38,7 @@ def autopilot_wants_jump(world: World) -> bool:
         return False
     target = min(ahead, key=lambda o: o.x)
     clearance = target.height - config.hitbox_inset
-    velocity, gravity = config.jump_velocity, config.gravity
+    velocity, gravity = config.jump_velocity(world.speed), config.gravity(world.speed)
     root = math.sqrt(velocity * velocity - 2 * gravity * clearance)
     rise, fall = (velocity - root) / gravity, (velocity + root) / gravity
     overlap = (target.width + right - left) / world.speed
@@ -53,6 +53,18 @@ def simulate(world: World, seconds: float, autopilot: bool = False) -> None:
         world.update(DT)
         if world.state is State.GAME_OVER:
             return
+
+
+def jump_from(world: World) -> tuple[float, float]:
+    world.jump()
+    takeoff = world.distance
+    launch = world.player.jump_velocity, world.player.gravity
+    apex = 0.0
+    while not world.player.on_ground:
+        world.update(DT)
+        apex = max(apex, world.player.altitude)
+        assert (world.player.jump_velocity, world.player.gravity) == launch
+    return world.distance - takeoff, apex
 
 
 def test_menu_waits_for_hero_choice_and_start_does_not_jump() -> None:
@@ -110,8 +122,28 @@ def test_jump_rises_above_tallest_obstacle_and_lands() -> None:
         apex = max(apex, world.player.altitude)
 
     assert apex > world.config.obstacle_max_height * 1.5
-    assert airtime == pytest.approx(world.config.jump_airtime, abs=2 * DT)
+    assert airtime == pytest.approx(world.config.jump_airtime(world.config.start_speed), abs=2 * DT)
     assert world.player.altitude == 0
+
+
+def test_jump_keeps_its_height_and_does_not_fly_much_farther_at_max_speed() -> None:
+    slow_world = running_world(NO_OBSTACLES)
+    fast_world = running_world(NO_OBSTACLES)
+    config = fast_world.config
+    simulate(fast_world, (config.max_speed - config.start_speed) / config.acceleration + 1)
+
+    slow_length, slow_apex = jump_from(slow_world)
+    fast_length, fast_apex = jump_from(fast_world)
+
+    assert fast_world.speed == config.max_speed
+    assert slow_apex == pytest.approx(config.jump_height, abs=3)
+    assert fast_apex == pytest.approx(config.jump_height, abs=3)
+    drift = config.acceleration * config.jump_airtime(config.start_speed) ** 2 / 2
+    assert slow_length == pytest.approx(
+        config.jump_length_slow + drift, abs=config.start_speed * 2 * DT
+    )
+    assert fast_length == pytest.approx(config.jump_length_fast, abs=config.max_speed * 2 * DT)
+    assert fast_length < slow_length * 1.3
 
 
 def test_space_in_air_does_not_double_jump() -> None:
@@ -162,7 +194,7 @@ def test_obstacles_leave_time_to_land_before_next_jump() -> None:
         spawned.update((id(o), o) for o in world.obstacles)
         ordered = sorted(world.obstacles, key=lambda o: o.x)
         for current, following in pairwise(ordered):
-            assert (following.x - current.x) / world.speed >= world.config.jump_airtime
+            assert (following.x - current.x) / world.speed >= world.config.jump_airtime(world.speed)
 
     assert state_of(world) is State.RUNNING
     assert len(spawned) > 30
@@ -347,14 +379,18 @@ def test_menu_cannot_skip_the_crash_scene() -> None:
 
 
 @pytest.mark.parametrize("kind", list(Kind))
-def test_every_obstacle_leaves_at_least_a_tenth_of_a_second_to_time_the_jump(kind: Kind) -> None:
+def test_jump_timing_window_is_generous_and_never_grows_with_speed(kind: Kind) -> None:
     config = Config()
     aspect, _, max_height = KIND_SHAPES[kind]
     width = aspect * max_height
     clearance = max_height - config.hitbox_inset
-    velocity, gravity = config.jump_velocity, config.gravity
-    root = math.sqrt(velocity * velocity - 2 * gravity * clearance)
-    above = 2 * root / gravity
-    for speed in (config.start_speed, config.max_speed):
+    windows = []
+    for speed in range(round(config.start_speed), round(config.max_speed) + 1, 30):
+        velocity, gravity = config.jump_velocity(speed), config.gravity(speed)
+        root = math.sqrt(velocity * velocity - 2 * gravity * clearance)
+        above = 2 * root / gravity
         overlap = (width + config.player_width - 2 * config.hitbox_inset) / speed
-        assert above - overlap >= 0.1
+        windows.append(above - overlap)
+
+    assert min(windows) >= 0.15
+    assert all(after <= before + 1e-9 for before, after in pairwise(windows))

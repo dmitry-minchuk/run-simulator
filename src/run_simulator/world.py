@@ -37,8 +37,9 @@ class Config:
     player_x: float = 120.0
     player_width: float = 88.0
     player_height: float = 120.0
-    gravity: float = 3500.0
-    jump_velocity: float = 1400.0
+    jump_height: float = 280.0
+    jump_length_slow: float = 390.0
+    jump_length_fast: float = 445.0
     start_speed: float = 360.0
     acceleration: float = 5.0
     max_speed: float = 900.0
@@ -53,9 +54,19 @@ class Config:
     restart_delay: float = 1.2
     score_per_pixel: float = 0.1
 
-    @property
-    def jump_airtime(self) -> float:
-        return 2 * self.jump_velocity / self.gravity
+    def jump_length(self, speed: float) -> float:
+        progress = (speed - self.start_speed) / (self.max_speed - self.start_speed)
+        progress = min(1.0, max(0.0, progress))
+        return self.jump_length_slow + (self.jump_length_fast - self.jump_length_slow) * progress
+
+    def jump_airtime(self, speed: float) -> float:
+        return self.jump_length(speed) / speed
+
+    def jump_velocity(self, speed: float) -> float:
+        return 4 * self.jump_height / self.jump_airtime(speed)
+
+    def gravity(self, speed: float) -> float:
+        return 8 * self.jump_height / self.jump_airtime(speed) ** 2
 
 
 @dataclass
@@ -63,6 +74,8 @@ class Player:
     altitude: float = 0.0
     velocity: float = 0.0
     on_ground: bool = True
+    jump_velocity: float = 0.0
+    gravity: float = 0.0
 
 
 @dataclass
@@ -176,16 +189,19 @@ class World:
         self.next_spawn_in = self.config.start_speed * self.config.first_obstacle_delay
 
     def _jump(self) -> None:
-        if self.player.on_ground:
-            self.player.velocity = self.config.jump_velocity
-            self.player.on_ground = False
+        player = self.player
+        if player.on_ground:
+            player.jump_velocity = self.config.jump_velocity(self.speed)
+            player.gravity = self.config.gravity(self.speed)
+            player.velocity = player.jump_velocity
+            player.on_ground = False
 
     def _move_player(self, dt: float) -> None:
         player = self.player
         if player.on_ground:
             return
-        player.velocity -= self.config.gravity * dt
-        player.altitude += player.velocity * dt
+        player.altitude += (player.velocity - player.gravity * dt / 2) * dt
+        player.velocity -= player.gravity * dt
         if player.altitude <= 0:
             player.altitude = 0.0
             player.velocity = 0.0
@@ -213,7 +229,7 @@ class World:
         )
         self.obstacles.append(obstacle)
         extra = self.rng.uniform(config.gap_extra_min, config.gap_extra_max)
-        gap_time = config.jump_airtime + extra
+        gap_time = config.jump_airtime(self.speed) + extra
         self.next_spawn_in += obstacle.width + self.speed * gap_time
 
     def _collision(self) -> Obstacle | None:
